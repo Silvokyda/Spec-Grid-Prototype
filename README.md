@@ -1,9 +1,9 @@
-# 📁 Project: Transcript → Embedding → Spec Grid (Azure + OpenAI)
+# 📁 Project: Transcript → Embedding → Spec Grid (Browser Extension + Azure)
 
 ## 🧠 Overview
-A simple proof-of-concept pipeline that:
-1. Accepts a transcript (text file or JSON)
-2. Splits it into chunks
+A proof-of-concept pipeline that:
+1. Uses a Chrome Extension to capture live meeting transcripts (Google Meet / Zoom)
+2. Splits the transcript into chunks in real-time
 3. Sends each chunk to OpenAI's embedding API
 4. Stores the vector + metadata into Cosmos DB
 5. (Optional) Ranks relevant chunks based on a search query
@@ -12,11 +12,12 @@ A simple proof-of-concept pipeline that:
 ---
 
 ## 🛠️ Stack
+- **Chrome Extension** – captures captions from meeting platforms
 - **Azure Functions** – for chunking, embedding, storing, and retrieving
 - **Azure Cosmos DB** – to store chunk metadata and embeddings
-- **Azure Blob Storage** – to store original transcript files
+- **Azure Blob Storage** – (optional) store full call logs
 - **OpenAI API** – for semantic embeddings
-- **Python 3.10+**
+- **Python + JS**
 
 ---
 
@@ -28,15 +29,20 @@ git clone https://github.com/silvokyda/spec-grid-poc.git
 cd spec-grid-poc
 ```
 
-### 2. Create virtual environment & install dependencies
+### 2. Set up Chrome Extension
+- Navigate to `/extension`
+- Load the folder as an unpacked extension in Chrome (chrome://extensions)
+- Join a meeting → Extension auto-starts → Captions are captured
+
+### 3. Backend Setup
+#### Create virtual environment & install dependencies
 ```bash
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate  # or venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Environment Variables (.env)
-Create a `.env` file:
+### 4. Environment Variables (.env)
 ```env
 OPENAI_API_KEY=your_openai_key
 COSMOS_DB_URL=https://your-db.documents.azure.com:443/
@@ -46,23 +52,27 @@ COSMOS_CONTAINER_NAME=Chunks
 AZURE_STORAGE_CONNECTION_STRING=your_blob_connection_string
 ```
 
-### 4. Run Local Azure Functions
+### 5. Run Azure Functions Locally
 ```bash
-func start  # After installing Azure Functions Core Tools
+func start
 ```
 
 ---
 
-## 🧩 Key Functions
-- `/ingest-transcript` – accepts transcript text, chunks it
-- `/embed-chunks` – sends to OpenAI and stores embeddings
-- `/search-specs` – accepts a prompt and returns best-matching chunks
+## 🧩 Key Components
+- `/extension/` – Chrome extension for transcript capture
+- `/functions/` – Azure Functions for processing and embedding
+- `/services/` – utilities for chunking, storing, embedding
 
 ---
 
 ## 📦 Folder Structure
 ```txt
 .
+├── extension
+│   ├── manifest.json
+│   ├── content.js
+│   └── background.js
 ├── functions
 │   ├── ingest_transcript.py
 │   ├── embed_chunks.py
@@ -79,10 +89,10 @@ func start  # After installing Azure Functions Core Tools
 ---
 
 ## 🔚 Future Enhancements
-- Add summary generation with GPT-4
-- Add Slack/email scraping prototype
-- Deploy to Azure
-- Write blog post with live demo
+- Add real-time caption support with Whisper API
+- Automatically connect to Slack/email content
+- Add UI to preview and export the spec grid
+- Deploy everything to Azure cloud
 
 ---
 
